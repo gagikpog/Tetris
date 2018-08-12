@@ -1,10 +1,10 @@
 #include "Tetris.h"
 
-int WndW = 500,WndH = 800;
+int WndW = 450,WndH = 810;
 
 using namespace std;
 
-Game game(50,80);
+Game game(10,18);
 
 void Display()
 {
@@ -18,6 +18,11 @@ void init()
 {
     game.InitFrame(10,10,WndW-20,WndH-20);
 }
+void Keys(BYTE key,int ax,int ay)
+{
+    if(key == 27)
+        exit(0);
+}
 
 int main(int argc,char** argv)
 {
@@ -30,6 +35,7 @@ int main(int argc,char** argv)
 
     gluOrtho2D(0,WndW,0,WndH);
     init();
+    glutKeyboardFunc(Keys);
     glutDisplayFunc(Display);
     glutMainLoop();
     return 0;

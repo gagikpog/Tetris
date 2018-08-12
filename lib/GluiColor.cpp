@@ -264,4 +264,24 @@ Glui_Color Glui_Color::bildColor(Glui_Colornum _Color) const
     }
     return Glui_Color(r, g, b, 255);
 }
+
+unsigned int Glui_Color::ColorToUInt(Glui_Color color)
+{
+    unsigned int res = 0;
+    res = color.R;    res <<= 8;
+    res += color.G;   res <<= 8;
+    res += color.B;   res <<= 8;
+    res += color.A;   
+    return res;    
+}
+
+Glui_Color Glui_Color::UIntToColor(unsigned int intValue)
+{
+    BYTE r,g,b,a;
+    a = intValue & 255; intValue >>= 8;
+    b = intValue & 255; intValue >>= 8;
+    g = intValue & 255; intValue >>= 8;
+    r = intValue & 255;
+    return Glui_Color(r,g,b,a);
+}
 } // namespace GLUI

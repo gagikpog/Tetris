@@ -1,8 +1,23 @@
+#include <GL/freeglut.h>
+#include <iostream>
+#include <cmath>
+
+#define PI 3.14159265358979323846f
+
+#ifndef WIN32
+#define sqrtf sqrt
+#define BYTE unsigned char
+#define HDC short
+#define HWND short
+#define atan2f atan2
+#define sinf sin
+#define cosf cos
+#define OpenClipboard
+#endif
+
 #ifndef GLUICOLOR_H
 #define GLUICOLOR_H
 
-#include <GL/freeglut.h>
-#define BYTE unsigned char
 namespace GLUI
 {
 	//перечисление цветов
@@ -44,6 +59,9 @@ namespace GLUI
 		bool operator==(const Glui_Color& _col)const;
 		Glui_Color operator+(const Glui_Color& operator2)const;
 		Glui_Color operator-(const Glui_Color& operator2)const;
+		//static
+		static unsigned int ColorToUInt(Glui_Color color);
+		static Glui_Color UIntToColor(unsigned int intValue);
 //		friend class Glui_ColDialog;
 	private:
 	protected:
