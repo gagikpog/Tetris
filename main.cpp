@@ -4,6 +4,8 @@ int WndW = 450,WndH = 810;
 
 using namespace std;
 
+void Timer(int t = 0);
+
 Game game(10,18);
 
 void Display()
@@ -14,15 +16,31 @@ void Display()
 
     glutSwapBuffers();
 }
+
 void init()
 {
     game.InitFrame(10,10,WndW-20,WndH-20);
+    srand(time(NULL));
+    Timer();
 }
 void Keys(BYTE key,int ax,int ay)
 {
     if(key == 27)
         exit(0);
 }
+
+void Keys(int key,int ax,int ay)
+{
+    game.SpecialFunc(key,ax,WndH - ay);
+}
+
+void Timer(int t)
+{
+    glutPostRedisplay();
+    game.Next();
+    glutTimerFunc(game.Speed,Timer,0);
+}
+
 
 int main(int argc,char** argv)
 {
@@ -36,6 +54,7 @@ int main(int argc,char** argv)
     gluOrtho2D(0,WndW,0,WndH);
     init();
     glutKeyboardFunc(Keys);
+    glutSpecialFunc(Keys);
     glutDisplayFunc(Display);
     glutMainLoop();
     return 0;
