@@ -1,4 +1,4 @@
-#include "Tetris.h"
+#include "Game.h"
 
 int WndW = 450,WndH = 810;
 
@@ -20,6 +20,7 @@ void Display()
 void init()
 {
     game.InitFrame(10,10,WndW-20,WndH-20);
+    game.setBckgColor(GLUI::Glui_Colornum::Black);
     srand(time(NULL));
     Timer();
 }
@@ -49,7 +50,7 @@ int main(int argc,char** argv)
     glutInitWindowPosition(10,10);
     glutInitWindowSize(WndW,WndH);
     glutCreateWindow("Tetris");
-    glClearColor(1,1,1,1);
+    glClearColor(0,0.5,0.5,1);
 
     gluOrtho2D(0,WndW,0,WndH);
     init();
