@@ -65,6 +65,7 @@ void Game::Next()
             delete block;
             block = new Block(&Matrix);
             block->setBlock(blocksMap[rand()%blocksMap.size()]);
+            DeleteExtraLines();
         }        
     }
 }
@@ -113,4 +114,29 @@ void Game::SpecialFunc(int key,int ax,int ay)
 void Game::setBckgColor(const GLUI::Glui_Color& color)
 {
     backgrColor = new GLUI::Glui_Color(color);
+}
+
+
+bool Game::DeleteExtraLines()
+{
+    std::vector<BYTE> erase;
+    bool b = true;
+    int delLineCount = 0;
+    for(int i = 0; i < Matrix.size(); i++)
+    {
+        b = true;
+        for(int j = 0; j < Matrix[0].size() && b; j++)
+        {
+            b = Matrix[i][j] != 0;
+        }
+        if(b){
+            erase.push_back(i);
+        }        
+    }
+    
+    for(int i = erase.size() - 1; i >= 0; i--)
+    {
+        Matrix.erase(Matrix.begin()+erase[i]);
+    }    
+    Matrix.insert(Matrix.begin(),erase.size(),std::vector<unsigned int>(Matrix[0].size(),0));
 }

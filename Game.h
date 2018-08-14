@@ -13,9 +13,9 @@ private:
   float SizeW = 100, SizeH = 100;
   GLUI::Glui_Color *backgrColor;
   std::vector<std::string> blocksMap;
-  void LoadBlocks(std::string filename);
   Block *block = NULL;
-
+  void LoadBlocks(std::string filename);
+  bool DeleteExtraLines();
 public:
   Game(int w, int h);
   ~Game();
