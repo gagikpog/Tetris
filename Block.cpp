@@ -4,7 +4,8 @@ Block::Block(std::vector<std::vector<unsigned int>>* matrix)
 {
     Matrix = matrix;
     mBlock.insert(mBlock.begin(),5,std::vector<bool>(5,0));
-    Color = new GLUI::Glui_Color(GLUI::Glui_Color::UIntToColor(rand()+100));
+    //Color = new GLUI::Glui_Color(GLUI::Glui_Color::UIntToColor(rand()+100));
+    Color = new GLUI::Glui_Color(GLUI::Green);
 }
 
 Block::~Block()
@@ -24,12 +25,14 @@ bool Block::Next()
         {
             if(!mBlock[i+2][j+2])
                 continue;
-            if(Y + i < 0 || Y + i >= Matrix->size())
+            if(Y + i >= (int)Matrix->size())
             {
                 b = false;
                 break;
             }
-            b = (*Matrix)[Y+i][X+j] == 0;
+            if(Y + i >= 0)
+                b = (*Matrix)[Y+i][X+j] == 0;
+            else b = true;
         }
     }
     Dead = !b;
@@ -58,6 +61,8 @@ void Block::Left()
                 b = false;
                 break;
             }
+            if(Y + i < 0)
+                continue;
             b = (*Matrix)[Y+i][X+j] == 0;
         }
     }
@@ -82,6 +87,8 @@ void Block::Right()
                 b = false;
                 break;
             }
+            if(Y + i < 0)
+                continue;
             b = (*Matrix)[Y+i][X+j] == 0;
         }
     }
@@ -155,7 +162,7 @@ void Block::Save()
     }   
 }
 
-void Block::Rotate90()
+void Block::Rotate90(bool Adjustment)
 {
     bool tmp;
     int n = 5;
@@ -170,13 +177,12 @@ void Block::Rotate90()
             mBlock[j][n - i - 1] = tmp;
         }
     }
-    if(!PositionAdjustment())
-    {
-        Rotate270();
-    }
+    if(Adjustment)
+        if(!PositionAdjustment())
+            Rotate270(false);
 }
 
-void Block::Rotate270()
+void Block::Rotate270(bool Adjustment)
 {
     bool tmp;
     int n = 5;
@@ -191,15 +197,15 @@ void Block::Rotate270()
             mBlock[n - 1 - j][i] = tmp;
         }
     }
-    if(!PositionAdjustment())
-    {
-        Rotate90();
-    }
+    if(Adjustment)
+        if(!PositionAdjustment())
+            Rotate90(false);
 }
 
-bool Block::PositionAdjustment()
+bool Block::PositionAdjustment(BYTE deep)
 {
-    std::cout<<"in PositionAdjustment"<<std::endl;
+    if(deep == 0)
+        return 0;
     bool b = true;
     for(int i = -2; i < 3 && b; i++)    
     {
@@ -210,7 +216,7 @@ bool Block::PositionAdjustment()
             if(X + j < 0)
             {
                 X++;
-                b = PositionAdjustment();
+                b = PositionAdjustment(deep-1);
                 if(!b)
                     X--;
                 break;    
@@ -218,16 +224,18 @@ bool Block::PositionAdjustment()
             if (X + j >= (*Matrix)[0].size())
             {
                 X--;
-                b = PositionAdjustment();
+                b = PositionAdjustment(deep-1);
                 if(!b)
                     X++;
                 break;
             }
-            if(Y + i > 0 && Y + i < Matrix->size())
+            //if(Y + i > 0 && Y + i < Matrix->size())   <------the bug was here
+            if(Y + i >= 0 && Y + i < Matrix->size())
                 b = (*Matrix)[Y+i][X+j] == 0;
             else b = false;
+            if(Y + i < 0)
+                b = true;
         }
     }
-    std::cout<<"out PositionAdjustment"<<std::endl;
     return b;
 }

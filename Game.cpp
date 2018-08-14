@@ -74,6 +74,17 @@ void Game::KeyboardFunc(BYTE key,int ax,int ay)
     switch(key)
     {
         case 'r':
+        case 'R':
+            for(int i = 0; i < Matrix.size(); i++)
+            {
+                for(int j = 0; j < Matrix[0].size(); j++)
+                {
+                    Matrix[i][j] = 0;
+                }
+            }            
+        break;
+        case ' ':
+            while(block->Next());
         break;
     }
 }

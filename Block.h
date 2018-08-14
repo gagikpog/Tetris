@@ -19,12 +19,12 @@ private:
   int X = 0, Y = 0;
   RotateType rType = R_Full;
   GLUI::Glui_Color *Color;
-  void Rotate90();
-  void Rotate270();
+  void Rotate90(bool Adjustment = true);
+  void Rotate270(bool Adjustment = true);
   bool rutateIndex = 0;
   bool Dead = false;
   void Save();
-  bool PositionAdjustment();
+  bool PositionAdjustment(BYTE deep = 3);
 public:
   Block(std::vector<std::vector<unsigned int>> *matrix);
   ~Block();

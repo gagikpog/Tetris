@@ -28,6 +28,7 @@ void Keys(BYTE key,int ax,int ay)
 {
     if(key == 27)
         exit(0);
+    game.KeyboardFunc(key,ax,WndH-ay);
 }
 
 void Keys(int key,int ax,int ay)
