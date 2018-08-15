@@ -4,10 +4,8 @@ Game::Game(int w,int h)
 {
     W = w;
     H = h;
-    LoadBlocks("blocksMap.map");
     Matrix.insert(Matrix.begin(),H, std::vector<unsigned int>(W,0));
     block = new Block(&Matrix);
-    block->setBlock(blocksMap[6]);
     backgrColor = new GLUI::Glui_Color(20,20,20);
 }
 Game::~Game()
@@ -26,6 +24,8 @@ void Game::LoadBlocks(std::string filename)
             std::getline(fin,str);
             blocksMap.push_back(str);
        }
+    NextBlockID = rand()%blocksMap.size();
+    block->setBlock(blocksMap[NextBlockID]);
    }else throw std::runtime_error("Could not open file");
 }
 
@@ -53,21 +53,22 @@ void Game::Print()
                 GLUI::Gl_Print_Rectangle(PosX+j*w,PosY+(H-i-1)*h,w,h,GLUI::Glui_Color::UIntToColor(Matrix[i][j]),GLUI::Yellow);
         }
     }
+    //  blocks
     block->Print(PosX,PosY,w,h);
 }
 
-void Game::Next()
+bool Game::Next()
 {
+    bool res = false;
     if(block)
     {
-        if(!block->Next())
+        res = block->Next();
+        if(!res)
         {
-            delete block;
-            block = new Block(&Matrix);
-            block->setBlock(blocksMap[rand()%blocksMap.size()]);
-            DeleteExtraLines();
+           NewBlock();
         }        
     }
+    return res;
 }
 
 void Game::KeyboardFunc(BYTE key,int ax,int ay)
@@ -76,13 +77,7 @@ void Game::KeyboardFunc(BYTE key,int ax,int ay)
     {
         case 'r':
         case 'R':
-            for(int i = 0; i < Matrix.size(); i++)
-            {
-                for(int j = 0; j < Matrix[0].size(); j++)
-                {
-                    Matrix[i][j] = 0;
-                }
-            }            
+            NewGame();       
         break;
         case ' ':
             while(block->Next());
@@ -113,6 +108,8 @@ void Game::SpecialFunc(int key,int ax,int ay)
 
 void Game::setBckgColor(const GLUI::Glui_Color& color)
 {
+    if(backgrColor)
+        delete backgrColor;
     backgrColor = new GLUI::Glui_Color(color);
 }
 
@@ -139,4 +136,59 @@ bool Game::DeleteExtraLines()
         Matrix.erase(Matrix.begin()+erase[i]);
     }    
     Matrix.insert(Matrix.begin(),erase.size(),std::vector<unsigned int>(Matrix[0].size(),0));
+   //game over
+    bool gameOver = false;
+    for (int i = 0; i < Matrix[0].size() && !gameOver; i++)
+    {
+        gameOver = Matrix[0][i] > 0;
+    }
+    if (gameOver)
+    {
+        NewGame();
+    }
+    // counting score and game status
+    switch(erase.size())
+    {
+        case 1:
+            Score += 40*Level;
+            break;
+        case 2:
+            Score += 100*Level;
+            break;
+        case 3:
+            Score += 300*Level;
+            break;
+        case 4:
+            Score += 1200*Level;
+            break;
+    }
+    Lines += erase.size();
+    Level = Lines / 10 + 1;
+    Speed = 550 - Level*50;
+
+}
+
+void Game::NewGame()
+{
+    for (int i = 0; i < Matrix.size(); i++)
+    {
+        for (int j = 0; j < Matrix[0].size(); j++)
+        {
+            Matrix[i][j] = 0;
+        }
+    }
+    NewBlock();
+    Speed = 500;
+    Level = 1;
+    Lines = 0;
+    Score = 0;
+}
+
+void Game::NewBlock()
+{
+    delete block;
+    block = new Block(&Matrix);
+    block->setBlock(blocksMap[NextBlockID]);
+    DeleteExtraLines();
+    NextBlockID = rand() % blocksMap.size();
 }
