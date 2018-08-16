@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "lib/GluiText.h"
+#include "lib/GluiConfig.h"
 
 int WndW = 450+150,WndH = 810;
 bool pause = false;
@@ -28,13 +29,16 @@ void Display()
 void init()
 {   
     srand(time(NULL));
-    game.LoadBlocks("blocksMap.map");
+    game.LoadBlocksFromFile("blocksMap.map");
+    game.LoadBlocksColorsFromFile("blocksColor.txt");
     game.InitFrame(10,10,WndW-20-150,WndH-20);
     game.setBckgColor(GLUI::Glui_Colornum::Black);
-    window.LoadBlocks("blocksMap.map");
+    window.LoadBlocksFromFile("blocksMap.map");
+    window.LoadBlocksColorsFromFile("blocksColor.txt");
     window.InitFrame(WndW - 150, WndH - 300,140,140);
     window.setBckgColor(GLUI::Glui_Colornum::Black);
     window.NextBlockID = game.NextBlockID;
+    window.NextBlockColorID = game.NextBlockColorID;
     window.NewGame();
     window.Next();
     Timer();
@@ -63,6 +67,7 @@ void Timer(int t)
         if(!game.Next())
         {   
             window.NextBlockID = game.NextBlockID;
+            window.NextBlockColorID = game.NextBlockColorID;
             window.NewGame();
             window.Next();
         }

@@ -4,7 +4,6 @@ Block::Block(std::vector<std::vector<unsigned int>>* matrix)
 {
     Matrix = matrix;
     mBlock.insert(mBlock.begin(),5,std::vector<bool>(5,0));
-    //Color = new GLUI::Glui_Color(GLUI::Glui_Color::UIntToColor(rand()+100));
     Color = new GLUI::Glui_Color(GLUI::Green);
 }
 
@@ -238,4 +237,11 @@ bool Block::PositionAdjustment(BYTE deep)
         }
     }
     return b;
+}
+
+void Block::setBlockColor(const GLUI::Glui_Color& color)
+{
+    if(Color)
+        delete Color;
+    Color  = new GLUI::Glui_Color(color);
 }

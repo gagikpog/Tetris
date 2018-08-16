@@ -7,13 +7,14 @@ Game::Game(int w,int h)
     Matrix.insert(Matrix.begin(),H, std::vector<unsigned int>(W,0));
     block = new Block(&Matrix);
     backgrColor = new GLUI::Glui_Color(20,20,20);
+    blocksColor.push_back(GLUI::Glui_Color::ColorToUInt(GLUI::Green));
 }
 Game::~Game()
 {
     delete backgrColor;
 }
 
-void Game::LoadBlocks(std::string filename)
+void Game::LoadBlocksFromFile(std::string filename)
 {
    std::ifstream fin(filename);
    if(fin.is_open())
@@ -26,7 +27,25 @@ void Game::LoadBlocks(std::string filename)
        }
     NextBlockID = rand()%blocksMap.size();
     block->setBlock(blocksMap[NextBlockID]);
-   }else throw std::runtime_error("Could not open file");
+   }else throw std::runtime_error("Could not open file 'blocksMap.map'");
+}
+void Game::LoadBlocksColorsFromFile(std::string filename)
+{
+    std::ifstream fin(filename);
+    if (fin.is_open())
+    {
+        blocksColor.clear();
+        unsigned int res;
+        while (!fin.eof())
+        {
+            fin>>res;
+            blocksColor.push_back(res);
+        }
+        NextBlockColorID = rand() % blocksColor.size();
+        block->setBlockColor(GLUI::Glui_Color::UIntToColor(blocksColor[NextBlockColorID]));
+    }
+    else
+        throw std::runtime_error("Could not open file 'blocksColor.txt'");
 }
 
 void Game::InitFrame(float x, float y, float w, float h)
@@ -189,6 +208,8 @@ void Game::NewBlock()
     delete block;
     block = new Block(&Matrix);
     block->setBlock(blocksMap[NextBlockID]);
+    block->setBlockColor(GLUI::Glui_Color::UIntToColor(blocksColor[NextBlockColorID]));
     DeleteExtraLines();
     NextBlockID = rand() % blocksMap.size();
+    NextBlockColorID = rand() % blocksColor.size();
 }

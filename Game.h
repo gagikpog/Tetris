@@ -12,6 +12,7 @@ private:
   float SizeW = 100, SizeH = 100;
   GLUI::Glui_Color *backgrColor;
   std::vector<std::string> blocksMap;
+  std::vector<unsigned int> blocksColor;
   Block *block = NULL;
   bool DeleteExtraLines();
   void NewBlock();
@@ -24,13 +25,15 @@ public:
   void KeyboardFunc(BYTE key, int ax, int ay);
   void SpecialFunc(int key, int ax, int ay);
   void setBckgColor(const GLUI::Glui_Color& color);
-  void LoadBlocks(std::string filename);
+  void LoadBlocksFromFile(std::string filename);
+  void LoadBlocksColorsFromFile(std::string filename);
   void NewGame();
   int Speed = 500;
   int Level = 1;
   int Lines = 0;
   int Score = 0;
   int NextBlockID = 0;
+  int NextBlockColorID = 0;
 };
 
 #endif
