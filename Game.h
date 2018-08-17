@@ -14,7 +14,7 @@ private:
   std::vector<std::string> blocksMap;
   std::vector<unsigned int> blocksColor;
   Block *block = NULL;
-  bool DeleteExtraLines();
+  void DeleteExtraLines();
   void NewBlock();
 public:
   Game(int w, int h);
@@ -25,6 +25,7 @@ public:
   void KeyboardFunc(BYTE key, int ax, int ay);
   void SpecialFunc(int key, int ax, int ay);
   void setBckgColor(const GLUI::Glui_Color& color);
+  const GLUI::Glui_Color& gatBckgColor() const;
   void LoadBlocksFromFile(std::string filename);
   void LoadBlocksColorsFromFile(std::string filename);
   void NewGame();

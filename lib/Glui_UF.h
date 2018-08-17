@@ -1,4 +1,8 @@
 #include "GluiColor.h"
+#include <sstream>
+#include <string>
+#include <stdexcept>
+
 #ifndef GLUI_UF
 #define GLUI_UF
     namespace GLUI
@@ -24,4 +28,14 @@
         //многоугольник
         void Gl_Print_Polygon(float X, float Y, float R, int Sides, Glui_Color Color, Glui_Color Outline_color = Black, float initial_angle = 0, float line_width = 1);
     } // namespace GLUI
+
+    namespace std{
+        template<typename T>    
+        std::string to_string(T arg)
+        {
+            std::stringstream res;
+            res<<arg;
+            return res.str();
+        }
+    }
 #endif

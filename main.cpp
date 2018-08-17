@@ -1,6 +1,6 @@
 #include "Game.h"
 #include "lib/GluiText.h"
-#include "lib/GluiConfig.h"
+#include "lib/ConfigINI.h"
 
 int WndW = 450+150,WndH = 810;
 bool pause = false;
@@ -12,31 +12,61 @@ void Timer(int t = 0);
 Game game(10,18);
 Game window(5,5);
 GLUI::Glui_Text text;
+ConfigINI config("tetris.config");
+//game settings
+GLUI::Glui_Color BackgroundColor(GLUI::Black);
+GLUI::Glui_Color TextColor(GLUI::White);
+string blocksColorPath = "blocksColor.txt";
+string blocksPath = "blocksMap.map";
+//
 
 void Display()
 {
     glClear(GL_COLOR_BUFFER_BIT);
-
+    GLUI::Gl_Print_Rectangle(0,0,WndW,WndH,BackgroundColor,BackgroundColor);
     game.Print();
     window.Print();
-    GLUI::Gl_Print_Rectangle(WndW - 150, WndH - 150,140,140,GLUI::Gray);
-    text.glText(WndW - 140, WndH - 30,"Score : " + to_string(game.Score),GLUI::White);
-    text.glText(WndW - 140, WndH - 60,"Lines : " + to_string(game.Lines),GLUI::White);
-    text.glText(WndW - 140, WndH - 90,"Level : " + to_string(game.Level),GLUI::White);
+    GLUI::Gl_Print_Rectangle(WndW - 150, WndH - 150,140,140,GLUI::Glui_Color(50,50,50,100));
+    text.glText(WndW - 140, WndH - 30,"Score : " + to_string(game.Score),TextColor);
+    text.glText(WndW - 140, WndH - 60,"Lines : " + to_string(game.Lines),TextColor);
+    text.glText(WndW - 140, WndH - 90,"Level : " + to_string(game.Level),TextColor);
     glutSwapBuffers();
 }
 
+void readConfig()
+{
+    //add all colors to the config
+    config.addNewOption("Color","background",BackgroundColor.getUInt());
+    config.addNewOption("Color","text",TextColor.getUInt());
+    config.addNewOption("Color","game",game.gatBckgColor().getUInt());
+    //add resource files path to the config
+    config.addNewOption("Path","blocksColor",blocksColorPath);
+    config.addNewOption("Path","blocks",blocksPath);
+
+    //read colors from config
+    BackgroundColor.setUInt(config.getOptionToUInt("Color","background"));
+    TextColor.setUInt(config.getOptionToUInt("Color","text"));
+    game.setBckgColor(GLUI::Glui_Color::UIntToColor(config.getOptionToUInt("Color","game")));
+    window.setBckgColor(game.gatBckgColor());
+    //read paths from config
+    blocksColorPath = config.getOptionToString("Path","blocksColor");
+    blocksPath = config.getOptionToString("Path","blocks");
+}
+
 void init()
-{   
+{
+    readConfig();
     srand(time(NULL));
-    game.LoadBlocksFromFile("blocksMap.map");
-    game.LoadBlocksColorsFromFile("blocksColor.txt");
+    //Enable blending
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    game.LoadBlocksFromFile(blocksPath);
+    game.LoadBlocksColorsFromFile(blocksColorPath);
     game.InitFrame(10,10,WndW-20-150,WndH-20);
-    game.setBckgColor(GLUI::Glui_Colornum::Black);
-    window.LoadBlocksFromFile("blocksMap.map");
-    window.LoadBlocksColorsFromFile("blocksColor.txt");
+    window.LoadBlocksFromFile(blocksPath);
+    window.LoadBlocksColorsFromFile(blocksColorPath);
     window.InitFrame(WndW - 150, WndH - 300,140,140);
-    window.setBckgColor(GLUI::Glui_Colornum::Black);
     window.NextBlockID = game.NextBlockID;
     window.NextBlockColorID = game.NextBlockColorID;
     window.NewGame();
@@ -65,7 +95,7 @@ void Timer(int t)
     if(!pause)
     {
         if(!game.Next())
-        {   
+        {
             window.NextBlockID = game.NextBlockID;
             window.NextBlockColorID = game.NextBlockColorID;
             window.NewGame();

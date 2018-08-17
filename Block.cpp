@@ -4,7 +4,7 @@ Block::Block(std::vector<std::vector<unsigned int>>* matrix)
 {
     Matrix = matrix;
     mBlock.insert(mBlock.begin(),5,std::vector<bool>(5,0));
-    Color = new GLUI::Glui_Color(GLUI::Green);
+    Color = new GLUI::Glui_Color(8,233,26);
 }
 
 Block::~Block()
@@ -140,7 +140,7 @@ void Block::Print(float x,float y,float w,float h)
             if(X + j < 0 || X + j >= (*Matrix)[0].size())
                 continue;
             if(mBlock[i+2][j+2])
-                GLUI::Gl_Print_Rectangle(x+(X + j)*w,y+(Matrix->size()- Y - i - 1)*h,w,h,*Color,GLUI::White,0,true,1);
+                GLUI::Gl_Print_Rectangle(x+(X + j)*w,y+(Matrix->size()- Y - i - 1)*h,w,h,*Color,Color->getNegative(),0,true,1);
         }        
     }   
 }

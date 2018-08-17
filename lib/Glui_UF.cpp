@@ -31,12 +31,12 @@ namespace GLUI
         y = sinf(alpha*PI / 180.0f)*l;
         return y;
     }
-    
+
     void Gl_Print_Roundrect_Contour(float X, float Y, float W, float H, float R, Glui_Color Outline_color, float _angle,float line_width)
     {
         float fx, fy, RX, RY;
         float R1 = R;
-        
+
         if (R < H / 2.0f && R < W / 2.0f)
         {
             R1 = R;
@@ -92,7 +92,7 @@ namespace GLUI
         glEnd();
         glLineWidth(1);
     }
-    
+
     void Gl_Print_Roundrect(float X, float Y, float W, float H, float R, Glui_Color Color, Glui_Color Outline_color, float _angle, bool glossy,float line_width)
     {
         float fx, fy, RX, RY;
@@ -152,7 +152,7 @@ namespace GLUI
         glEnd();
         Gl_Print_Roundrect_Contour(X, Y, W, H, R, Outline_color, _angle, line_width);
     }
-    
+
     void Gl_Print_Circle_Contour(float X, float Y, float R, Glui_Color Outline_color, float line_width)
     {
         glLineWidth(line_width);
@@ -165,7 +165,7 @@ namespace GLUI
         glEnd();
         glLineWidth(1);
     }
-    
+
     void Gl_Print_Circle(float X, float Y, float R, Glui_Color Color, Glui_Color Outline_color, float line_width)
     {
         glBegin(GL_POLYGON);
@@ -177,7 +177,7 @@ namespace GLUI
         glEnd();
         Gl_Print_Circle_Contour(X, Y, R, Outline_color, line_width);
     }
-    
+
     void Gl_Print_Rectangle_Contour(float X, float Y, float W, float H, Glui_Color Outline_color, float _angle, float line_width)
     {
         glLineWidth(line_width);
@@ -190,7 +190,7 @@ namespace GLUI
         glEnd();
         glLineWidth(1);
     }
-    
+
     void Gl_Print_Rectangle(float X, float Y, float W, float H, Glui_Color Color, Glui_Color Outline_color, float _angle, bool glossy, float line_width)
     {
         Color.Init();
@@ -210,7 +210,7 @@ namespace GLUI
         glEnd();
         Gl_Print_Rectangle_Contour(X,Y,W,H,Outline_color,_angle,line_width);
     }
-    
+
     void Gl_Print_Circle_Contour(float X, float Y, float r, float R, Glui_Color Color, Glui_Color Outline_color)
     {
         glBegin(GL_TRIANGLE_STRIP);
@@ -232,7 +232,7 @@ namespace GLUI
             glVertex2f(X + R + cosf(i)*r, Y + R + sinf(i)*r);
         glEnd();
     }
-    
+
     void Gl_Print_Polygon_Contour(float X, float Y, float R, int Sides, Glui_Color Outline_color , float initial_angle, float line_width)
     {
         glLineWidth(line_width);
@@ -243,7 +243,7 @@ namespace GLUI
         glEnd();
         glLineWidth(1);
     }
-    
+
     void Gl_Print_Polygon(float X, float Y, float R, int Sides, Glui_Color Color, Glui_Color Outline_color , float initial_angle,float line_width)
     {
         Color.Init();

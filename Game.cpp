@@ -6,7 +6,7 @@ Game::Game(int w,int h)
     H = h;
     Matrix.insert(Matrix.begin(),H, std::vector<unsigned int>(W,0));
     block = new Block(&Matrix);
-    backgrColor = new GLUI::Glui_Color(20,20,20);
+    backgrColor = new GLUI::Glui_Color(22,215,255);
     blocksColor.push_back(GLUI::Glui_Color::ColorToUInt(GLUI::Green));
 }
 Game::~Game()
@@ -68,8 +68,10 @@ void Game::Print()
     {
         for(int j = 0;j < W;j++)
         {
-            if(Matrix[i][j] != 0)
-                GLUI::Gl_Print_Rectangle(PosX+j*w,PosY+(H-i-1)*h,w,h,GLUI::Glui_Color::UIntToColor(Matrix[i][j]),GLUI::Yellow);
+            if(Matrix[i][j] != 0){
+                GLUI::Glui_Color col(GLUI::Glui_Color::UIntToColor(Matrix[i][j]));
+                GLUI::Gl_Print_Rectangle(PosX+j*w,PosY+(H-i-1)*h,w,h,col,col.getNegative());
+            }
         }
     }
     //  blocks
@@ -132,8 +134,12 @@ void Game::setBckgColor(const GLUI::Glui_Color& color)
     backgrColor = new GLUI::Glui_Color(color);
 }
 
+const GLUI::Glui_Color& Game::gatBckgColor() const
+{
+    return *backgrColor;
+}
 
-bool Game::DeleteExtraLines()
+void Game::DeleteExtraLines()
 {
     std::vector<BYTE> erase;
     bool b = true;
