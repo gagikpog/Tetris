@@ -74,12 +74,29 @@ void Game::Print()
             }
         }
     }
+    //animation
+    if(Pause)
+    {
+        GLUI::Glui_Color col = *backgrColor;
+        col.setAlpha(180);
+        for(int i = 0; i < erase.size(); i++)
+        {
+            GLUI::Gl_Print_Rectangle(PosX,PosY +( H - erase[i] -1)*h,animation*SizeW / 25,h,col,col);
+            GLUI::Gl_Print_Rectangle(PosX + SizeW,PosY +( H - erase[i] -1)*h,-animation*SizeW / 25,h,col,col);
+        }        
+    }
     //  blocks
     block->Print(PosX,PosY,w,h);
 }
 
 bool Game::Next()
 {
+    if(Pause)
+    {
+        AnimationStep();
+        return false;
+    }
+
     bool res = false;
     if(block)
     {
@@ -94,6 +111,8 @@ bool Game::Next()
 
 void Game::KeyboardFunc(BYTE key,int ax,int ay)
 {
+    if(!block || Pause)
+        return;
     switch(key)
     {
         case 'r':
@@ -107,7 +126,7 @@ void Game::KeyboardFunc(BYTE key,int ax,int ay)
 }
 void Game::SpecialFunc(int key,int ax,int ay)
 {
-    if(!block)
+    if(!block || Pause)
         return;
     switch(key)
     {
@@ -141,7 +160,11 @@ const GLUI::Glui_Color& Game::gatBckgColor() const
 
 void Game::DeleteExtraLines()
 {
-    std::vector<BYTE> erase;
+    if(Pause)
+    {
+        return;
+    }
+    erase.clear();
     bool b = true;
     int delLineCount = 0;
     for(int i = 0; i < Matrix.size(); i++)
@@ -153,14 +176,10 @@ void Game::DeleteExtraLines()
         }
         if(b){
             erase.push_back(i);
+            Pause = true;
         }        
     }
     
-    for(int i = erase.size() - 1; i >= 0; i--)
-    {
-        Matrix.erase(Matrix.begin()+erase[i]);
-    }    
-    Matrix.insert(Matrix.begin(),erase.size(),std::vector<unsigned int>(Matrix[0].size(),0));
    //game over
     bool gameOver = false;
     for (int i = 0; i < Matrix[0].size() && !gameOver; i++)
@@ -190,7 +209,26 @@ void Game::DeleteExtraLines()
     Lines += erase.size();
     Level = Lines / 10 + 1;
     Speed = 550 - Level*50;
+    if(Pause)
+        Speed = 20;
 
+}
+
+void Game::AnimationStep()
+{
+    if(animation >= 25)
+    {
+        animation  = 0;
+        Pause = false;
+        Speed = 550 - Level*50;
+
+        for(int i = erase.size() - 1; i >= 0; i--)
+        {
+            Matrix.erase(Matrix.begin()+erase[i]);
+        }    
+        Matrix.insert(Matrix.begin(),erase.size(),std::vector<unsigned int>(Matrix[0].size(),0));
+    }
+    animation++;
 }
 
 void Game::NewGame()

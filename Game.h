@@ -13,9 +13,13 @@ private:
   GLUI::Glui_Color *backgrColor;
   std::vector<std::string> blocksMap;
   std::vector<unsigned int> blocksColor;
+  std::vector<BYTE> erase;
   Block *block = NULL;
+  bool Pause = false;
+  int animation = 0;
   void DeleteExtraLines();
   void NewBlock();
+  void AnimationStep();
 public:
   Game(int w, int h);
   ~Game();

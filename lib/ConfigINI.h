@@ -4,6 +4,8 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <cstdlib> // lib for atoi
+#include "Glui_UF.h" // for to_string fonction
 
 //Класс конфигурации, который сохраняет данные настроек.
 class ConfigINI
