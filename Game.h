@@ -1,4 +1,5 @@
 #include "Block.h"
+#include "lib/CRC_code.h"
 
 #ifndef GAME_H
 #define GAME_H
@@ -20,6 +21,8 @@ private:
   void DeleteExtraLines();
   void NewBlock();
   void AnimationStep();
+  void SaveHighScore(std::string filname);
+  void ReadHighScore(std::string filname);
 public:
   Game(int w, int h);
   ~Game();
@@ -38,6 +41,7 @@ public:
   int Lines = 0;
   int Score = 0;
   int NextBlockID = 0;
+  int HighScore = 0;
   int NextBlockColorID = 0;
 };
 

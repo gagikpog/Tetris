@@ -8,6 +8,7 @@ Game::Game(int w,int h)
     block = new Block(&Matrix);
     backgrColor = new GLUI::Glui_Color(22,215,255);
     blocksColor.push_back(GLUI::Glui_Color::ColorToUInt(GLUI::Green));
+    ReadHighScore("HighScore");
 }
 Game::~Game()
 {
@@ -206,6 +207,11 @@ void Game::DeleteExtraLines()
             Score += 1200*Level;
             break;
     }
+    if(Score > HighScore)
+    {
+        HighScore = Score;
+        SaveHighScore("HighScore");
+    }
     Lines += erase.size();
     Level = Lines / 10 + 1;
     Speed = 550 - Level*50;
@@ -256,4 +262,47 @@ void Game::NewBlock()
     DeleteExtraLines();
     NextBlockID = rand() % blocksMap.size();
     NextBlockColorID = rand() % blocksColor.size();
+}
+
+void Game::SaveHighScore(std::string filname)
+{
+    std::ofstream fout(filname);
+    if(fout.is_open())
+    {
+        BYTE str[] = "record____";
+        str[6] = (BYTE) (HighScore >>24);
+        str[7] = (BYTE) ((HighScore >> 16) & 255);
+        str[8] = (BYTE) ((HighScore >> 8) & 255);
+        str[9] = (BYTE) (HighScore & 255);
+        unsigned int crc = getCRC(str,10);
+        fout.write((char*)&str,10);
+        fout.write((char*)&crc,sizeof(int));
+    }else{
+        throw std::runtime_error("Can't create or open file for saving high score");
+    }
+
+}
+
+void Game::ReadHighScore(std::string filname)
+{
+    std::ifstream fin(filname);
+    if(fin.is_open())
+    {
+        BYTE str[] = "record____";
+        unsigned int crc;
+        fin.read((char*)str,10);
+        fin.read((char*)&crc,sizeof(int));
+                
+        if(getCRC(str,10) == crc)
+        {
+            HighScore  = str[6]; HighScore <<=8;
+            HighScore |= str[7]; HighScore <<=8;
+            HighScore |= str[8]; HighScore <<=8;
+            HighScore |= str[9];            
+        }else {std::cout<<"HighScore file was damaged\n";}
+
+    }else{
+        throw std::runtime_error("Can't create or open file for saving high score");
+    }
+
 }

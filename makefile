@@ -3,11 +3,11 @@ CC=g++
 all: bin app
 allDebog: bin appDebog
 
-app: bin/GluiColor.o bin/GluiText.o bin/ConfigINI.o bin/Glui_UF.o  bin/main.o bin/Game.o bin/Block.o 
-	$(CC) -o app.pro bin/GluiColor.o bin/GluiText.o bin/ConfigINI.o bin/Glui_UF.o bin/main.o bin/Game.o bin/Block.o -lGL -lGLU -lglut
+app: bin/GluiColor.o bin/GluiText.o bin/ConfigINI.o bin/Glui_UF.o  bin/main.o bin/Game.o bin/Block.o bin/CRC_code.o
+	$(CC) -o app.pro bin/GluiColor.o bin/GluiText.o bin/ConfigINI.o bin/Glui_UF.o bin/main.o bin/Game.o bin/Block.o bin/CRC_code.o -lGL -lGLU -lglut
 
-appDebog: bin/GluiColor.o bin/GluiText.o bin/ConfigINI.o bin/Glui_UF.o  bin/main.o bin/Game.o bin/Block.o 
-	$(CC) -o app.pro bin/GluiColor.o bin/GluiText.o bin/ConfigINI.o bin/Glui_UF.o bin/main.o bin/Game.o bin/Block.o -lGL -lGLU -lglut -g
+appDebog: bin/GluiColor.o bin/GluiText.o bin/ConfigINI.o bin/Glui_UF.o  bin/main.o bin/Game.o bin/Block.o bin/CRC_code.o
+	$(CC) -o app.pro bin/GluiColor.o bin/GluiText.o bin/ConfigINI.o bin/Glui_UF.o bin/main.o bin/Game.o bin/Block.o bin/CRC_code.o -lGL -lGLU -lglut -g
 
 #project 
 bin/main.o:
@@ -31,6 +31,9 @@ bin/ConfigINI.o:
 
 bin/Glui_UF.o:
 	$(CC) -c lib/Glui_UF.cpp -o bin/Glui_UF.o
+
+bin/CRC_code.o:
+	$(CC) -c lib/CRC_code.cpp -o bin/CRC_code.o
 
 clear:
 	rm bin/*.o

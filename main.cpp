@@ -30,6 +30,7 @@ void Display()
     text.glText(WndW - 140, WndH - 30,"Score : " + to_string(game.Score),TextColor);
     text.glText(WndW - 140, WndH - 60,"Lines : " + to_string(game.Lines),TextColor);
     text.glText(WndW - 140, WndH - 90,"Level : " + to_string(game.Level),TextColor);
+    text.glText(WndW - 140, WndH - 120,"High : " + to_string(game.HighScore),TextColor);
     glutSwapBuffers();
 }
 
