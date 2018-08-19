@@ -36,6 +36,7 @@ public:
   void LoadBlocksFromFile(std::string filename);
   void LoadBlocksColorsFromFile(std::string filename);
   void NewGame();
+  bool GameOver = false;
   int Speed = 500;
   int Level = 1;
   int Lines = 0;

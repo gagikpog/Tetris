@@ -92,13 +92,15 @@ void Game::Print()
 
 bool Game::Next()
 {
+    bool res = true;
+    if(GameOver)
+        return res;
     if(Pause)
     {
         AnimationStep();
-        return false;
+        return res;
     }
 
-    bool res = false;
     if(block)
     {
         res = block->Next();
@@ -189,7 +191,9 @@ void Game::DeleteExtraLines()
     }
     if (gameOver)
     {
-        NewGame();
+        GameOver = true;
+        Pause = true;
+        return;
     }
     // counting score and game status
     switch(erase.size())
@@ -246,6 +250,8 @@ void Game::NewGame()
             Matrix[i][j] = 0;
         }
     }
+    Pause = false;
+    GameOver = false;
     NewBlock();
     Speed = 500;
     Level = 1;

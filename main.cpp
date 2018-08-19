@@ -26,11 +26,29 @@ void Display()
     GLUI::Gl_Print_Rectangle(0,0,WndW,WndH,BackgroundColor,BackgroundColor);
     game.Print();
     window.Print();
-    GLUI::Gl_Print_Rectangle(WndW - 150, WndH - 150,140,140,GLUI::Glui_Color(50,50,50,100));
+    GLUI::Gl_Print_Rectangle(WndW - 150, WndH -  40,140,30,GLUI::Glui_Color(50,50,50,100));
+    GLUI::Gl_Print_Rectangle(WndW - 150, WndH -  70,140,30,GLUI::Glui_Color(50,50,50,100));
+    GLUI::Gl_Print_Rectangle(WndW - 150, WndH - 100,140,30,GLUI::Glui_Color(50,50,50,100));
+    GLUI::Gl_Print_Rectangle(WndW - 150, WndH - 130,140,30,GLUI::Glui_Color(50,50,50,100));
     text.glText(WndW - 140, WndH - 30,"Score : " + to_string(game.Score),TextColor);
     text.glText(WndW - 140, WndH - 60,"Lines : " + to_string(game.Lines),TextColor);
     text.glText(WndW - 140, WndH - 90,"Level : " + to_string(game.Level),TextColor);
     text.glText(WndW - 140, WndH - 120,"High : " + to_string(game.HighScore),TextColor);
+    //message window
+    if(pause || game.GameOver)
+    {
+        GLUI::Gl_Print_Roundrect((WndW - 150 - 200)/2, (WndH-140)/2,200,140,50,GLUI::Glui_Color(150,200,0,100),GLUI::Glui_Color(20,20,20,150));
+        if(game.GameOver)
+        {
+            text.glText((WndW - 150 - 100)/2-3, (WndH-15)/2,"GAME OVER",TextColor);
+            GLUI::Glui_Color col = TextColor.getNegative();
+            col.setAlpha(80);
+            GLUI::Gl_Print_Roundrect((WndW - 150 - 100)/2 -25, (WndH - 15)/2 - 26,150,20,10,col,col);
+            text.glText((WndW - 150 - 100)/2 - 15, (WndH-15)/2 - 20,"Press Enter for a new game",TextColor,GLUT_BITMAP_HELVETICA_10);
+        } else {
+            text.glText((WndW - 150 - 60)/2, (WndH-15)/2,"PAUSE",TextColor);
+        }
+    }
     glutSwapBuffers();
 }
 
@@ -76,10 +94,25 @@ void init()
 }
 void Keys(BYTE key,int ax,int ay)
 {
-    if(key == 27)
-        exit(0);
-    if(key == 'p'|| key == 'P')
-        pause = !pause;
+    switch (key)
+    {
+        case 27: exit(0);
+            break;
+        case 'p':
+        case 'P':
+            pause = !pause;
+            break;
+        case 13:
+            if(game.GameOver)
+            {
+                game.NewGame();
+                pause = false;
+            }
+            break;
+        default:
+            break;
+    }
+
     if(!pause)
         game.KeyboardFunc(key,ax,WndH-ay);
 }
