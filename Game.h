@@ -21,8 +21,9 @@ private:
   void DeleteExtraLines();
   void NewBlock();
   void AnimationStep();
-  void SaveHighScore(std::string filname);
-  void ReadHighScore(std::string filname);
+  void OpenGameDump(std::string filename);
+  void SaveGameDump(std::string filename);
+  std::string saveFilename;
 public:
   Game(int w, int h);
   ~Game();
@@ -35,6 +36,7 @@ public:
   const GLUI::Glui_Color& gatBckgColor() const;
   void LoadBlocksFromFile(std::string filename);
   void LoadBlocksColorsFromFile(std::string filename);
+  void setSaveingFileName(std::string filename);
   void NewGame();
   bool GameOver = false;
   int Speed = 500;

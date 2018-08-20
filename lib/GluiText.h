@@ -18,7 +18,7 @@ namespace GLUI
 		//установка размера шрифта
 		void setWidthChar(int _w);
 		//печатает текст по заданным координатам
-		void glText(float x, float y, const std::string txt, Glui_Color col = Black,void* font = GLUT_BITMAP_HELVETICA_18);
+		void glText(float x, float y, const std::string& txt, Glui_Color col = Black,void* font = GLUT_BITMAP_HELVETICA_18);
 		//
 		float getTextLength(std::string txt);
 		//устанавливает дескриптор контекста устройства

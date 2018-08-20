@@ -82,6 +82,7 @@ void init()
 
     game.LoadBlocksFromFile(blocksPath);
     game.LoadBlocksColorsFromFile(blocksColorPath);
+    game.setSaveingFileName("Save");
     game.InitFrame(10,10,WndW-20-150,WndH-20);
     window.LoadBlocksFromFile(blocksPath);
     window.LoadBlocksColorsFromFile(blocksColorPath);

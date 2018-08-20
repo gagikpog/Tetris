@@ -8,7 +8,6 @@ Game::Game(int w,int h)
     block = new Block(&Matrix);
     backgrColor = new GLUI::Glui_Color(22,215,255);
     blocksColor.push_back(GLUI::Glui_Color::ColorToUInt(GLUI::Green));
-    ReadHighScore("HighScore");
 }
 Game::~Game()
 {
@@ -106,7 +105,8 @@ bool Game::Next()
         res = block->Next();
         if(!res)
         {
-           NewBlock();
+            NewBlock();
+            SaveGameDump(saveFilename);
         }        
     }
     return res;
@@ -214,7 +214,6 @@ void Game::DeleteExtraLines()
     if(Score > HighScore)
     {
         HighScore = Score;
-        SaveHighScore("HighScore");
     }
     Lines += erase.size();
     Level = Lines / 10 + 1;
@@ -257,6 +256,7 @@ void Game::NewGame()
     Level = 1;
     Lines = 0;
     Score = 0;
+    SaveGameDump(saveFilename);
 }
 
 void Game::NewBlock()
@@ -270,45 +270,119 @@ void Game::NewBlock()
     NextBlockColorID = rand() % blocksColor.size();
 }
 
-void Game::SaveHighScore(std::string filname)
+void Game::SaveGameDump(std::string filename)
 {
-    std::ofstream fout(filname);
-    if(fout.is_open())
+    if(Matrix.empty() || filename == "")
+        return;
+    /* Matrix save to file;
+     * Matrix == vector<vector<int>
+     * 1) Matrix to Uint[];
+     * 2) Add an score, lines and a high score to the arr
+     * 3) Uint[] to BYTE[]
+     * 4) Get CRC code of BYTE[]
+     * 5) Write BYTE[] and CRC code to the file 
+     */
+    int _size = 1/*<-see next line*/ + Matrix.size()*Matrix[0].size() + 3; //Last 3 int elements is score, lines and high score
+    // In the first element of the array will be written the size of the matrix
+    unsigned int* arr = new unsigned int[_size];
+    // 1)
+    arr[0] = 0;
+    for(int i = 0; i < Matrix.size(); i++)
     {
-        BYTE str[] = "record____";
-        str[6] = (BYTE) (HighScore >>24);
-        str[7] = (BYTE) ((HighScore >> 16) & 255);
-        str[8] = (BYTE) ((HighScore >> 8) & 255);
-        str[9] = (BYTE) (HighScore & 255);
-        unsigned int crc = getCRC(str,10);
-        fout.write((char*)&str,10);
-        fout.write((char*)&crc,sizeof(int));
-    }else{
-        throw std::runtime_error("Can't create or open file for saving high score");
+        for(int j = 0; j < Matrix[i].size(); j++)
+        {
+            arr[ i*Matrix[i].size() + j + 1 ] = Matrix[i][j];
+        }
+    }
+    // 2)
+    arr[_size - 1] = HighScore;
+    arr[_size - 2] = Lines;
+    arr[_size - 3] = Score;
+    // 3) // bArr size == _size*4
+    BYTE * bArr = (BYTE*) arr;
+    bArr[0] = Matrix.size();
+    bArr[1] = Matrix[0].size();
+    // 4)
+    unsigned int crc = getCRC(bArr,_size*4);
+    // 5)
+    std::ofstream fout(filename);
+    if(!fout.is_open())
+    {
+        throw std::runtime_error("Can't save game");
     }
 
+    fout.write((char*)bArr,_size * 4);
+    fout.write((char*)&crc,sizeof(int));
+    fout.close();
+    delete []arr;
 }
 
-void Game::ReadHighScore(std::string filname)
+
+void Game::OpenGameDump(std::string filename)
 {
-    std::ifstream fin(filname);
-    if(fin.is_open())
+    if(filename == "")
+        return;
+    /* Read Matrix from file;
+     * 1) Get Matrix size
+     * 2) Calcole Uint array size
+     * 3) Create Uint array
+     * 4) Get BYTE pinter for Uint array
+     * 5) Copy all file from BYTE array
+     * 6) CRC code checked
+     * 7) Resize Matrix
+     * 8) Get score, lines and high score from array
+     * 9) Filling Matrix
+     */
+    std::ifstream fin(filename);
+    if(!fin.is_open())
     {
-        BYTE str[] = "record____";
-        unsigned int crc;
-        fin.read((char*)str,10);
-        fin.read((char*)&crc,sizeof(int));
-                
-        if(getCRC(str,10) == crc)
-        {
-            HighScore  = str[6]; HighScore <<=8;
-            HighScore |= str[7]; HighScore <<=8;
-            HighScore |= str[8]; HighScore <<=8;
-            HighScore |= str[9];            
-        }else {std::cout<<"HighScore file was damaged\n";}
-
-    }else{
-        throw std::runtime_error("Can't create or open file for saving high score");
+        std::cout<< "Can't open game dump\n";
+        return;
     }
+    // 1)
+    unsigned int msize = 0;
+    fin.read((char*)&msize,sizeof(int));
+    int h = msize & 0x000000ff;
+    int w = (msize >> 8)& 0x000000ff;
+    // 2)
+    int _size = w * h + 4;
+    // 3)
+    unsigned int* arr = new unsigned int[_size];
+    // 4)
+    BYTE* bArr = (BYTE*) arr;
+    // 5)
+    fin.read((char*)(bArr+4),(_size - 1)*4);
+    //first element of array = msize
+    arr[0] = msize;
+    // 6)
+    // read crc code from file
+    unsigned int crc = 0;
+    fin.read((char*)&crc,sizeof(int));
+    if(crc != getCRC(bArr, _size*4))
+    {
+        std::cout<<"\n";
+        return;
+    }
+    // 7)////////////////////////////////////////////////////////////////////////////////////////////////////////????????
+    // 8)
+    HighScore = arr[_size - 1];
+    Lines = arr[_size - 2];
+    Score = arr[_size - 3];
+    // 9)
+    
+    for(int i = 0; i < h; i++)
+    {        
+        for(int j = 0; j < w; j++)
+        {
+            Matrix[i][j] = arr[1+i*w+j];
+        }
+    }   
 
+    delete []arr;
+}
+
+void Game::setSaveingFileName(std::string filename)
+{
+    saveFilename = filename;
+    OpenGameDump(saveFilename);
 }

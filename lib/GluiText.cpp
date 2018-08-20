@@ -24,7 +24,7 @@ namespace GLUI
 	{
 		W = _w;
 	}
-	void Glui_Text::glText(float x, float y, const std::string txt, Glui_Color col,void* font)
+	void Glui_Text::glText(float x, float y, const std::string& txt, Glui_Color col,void* font)
 	{
 		col.Init();
 		if (H > 0)
