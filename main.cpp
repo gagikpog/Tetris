@@ -14,7 +14,7 @@ Game window(5,5);
 GLUI::Glui_Text text;
 ConfigINI config("tetris.config");
 //game settings
-GLUI::Glui_Color BackgroundColor(GLUI::Black);
+GLUI::Glui_Color BackgroundColor(22,215,255);
 GLUI::Glui_Color TextColor(GLUI::White);
 string blocksColorPath = "blocksColor.txt";
 string blocksPath = "blocksMap.map";
@@ -61,6 +61,9 @@ void readConfig()
     //add resource files path to the config
     config.addNewOption("Path","blocksColor",blocksColorPath);
     config.addNewOption("Path","blocks",blocksPath);
+    //add game blocks count to tht config
+    config.addNewOption("Value","gameBlockW",game.getW());
+    config.addNewOption("Value","gameBlockH",game.getH());
 
     //read colors from config
     BackgroundColor.setUInt(config.getOptionToUInt("Color","background"));
@@ -70,11 +73,19 @@ void readConfig()
     //read paths from config
     blocksColorPath = config.getOptionToString("Path","blocksColor");
     blocksPath = config.getOptionToString("Path","blocks");
+    //read game blocks count from config
+    int w = config.getOptionToInt("Value","gameBlockW");
+    int h = config.getOptionToInt("Value","gameBlockH");
+    // calculate window size
+    if(h == 0)
+        return;
+    int l = (WndH-20) / h;
+    WndW = w*l+20+150;
+    game.setBlocksCount(w,h);
 }
 
 void init()
 {
-    readConfig();
     srand(time(NULL));
     //Enable blending
     glEnable(GL_BLEND);
@@ -142,6 +153,7 @@ void Timer(int t)
 
 int main(int argc,char** argv)
 {
+    readConfig();
     glutInit(&argc,argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
     glutInitWindowPosition(10,10);

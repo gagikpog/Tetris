@@ -38,6 +38,9 @@ public:
   void LoadBlocksColorsFromFile(std::string filename);
   void setSaveingFileName(std::string filename);
   void NewGame();
+  int getW(){return W;}
+  int getH(){return H;}
+  void setBlocksCount(int w,int h);
   bool GameOver = false;
   int Speed = 500;
   int Level = 1;

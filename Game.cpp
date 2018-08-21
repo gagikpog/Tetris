@@ -43,9 +43,9 @@ void Game::LoadBlocksColorsFromFile(std::string filename)
         }
         NextBlockColorID = rand() % blocksColor.size();
         block->setBlockColor(GLUI::Glui_Color::UIntToColor(blocksColor[NextBlockColorID]));
+    }else{
+        std::cout<<"Could not open file "<<filename<<std::endl;
     }
-    else
-        throw std::runtime_error("Could not open file 'blocksColor.txt'");
 }
 
 void Game::InitFrame(float x, float y, float w, float h)
@@ -329,14 +329,14 @@ void Game::OpenGameDump(std::string filename)
      * 4) Get BYTE pinter for Uint array
      * 5) Copy all file from BYTE array
      * 6) CRC code checked
-     * 7) Resize Matrix
-     * 8) Get score, lines and high score from array
+     * 7) Get score, lines and high score from array
+     * 8) Resize Matrix
      * 9) Filling Matrix
      */
     std::ifstream fin(filename);
     if(!fin.is_open())
     {
-        std::cout<< "Can't open game dump\n";
+        std::cout<< "Can not open saved game\n";
         return;
     }
     // 1)
@@ -363,11 +363,16 @@ void Game::OpenGameDump(std::string filename)
         std::cout<<"\n";
         return;
     }
-    // 7)////////////////////////////////////////////////////////////////////////////////////////////////////////????????
-    // 8)
+    // 7
     HighScore = arr[_size - 1];
     Lines = arr[_size - 2];
     Score = arr[_size - 3];
+    // 8)
+    if(w != W || h != H)
+    {
+        NewGame();
+        return;
+    }
     // 9)
     
     for(int i = 0; i < h; i++)
@@ -385,4 +390,12 @@ void Game::setSaveingFileName(std::string filename)
 {
     saveFilename = filename;
     OpenGameDump(saveFilename);
+}
+
+void Game::setBlocksCount(int w,int h)
+{
+    W = w;
+    H = h;
+    Matrix.clear();
+    Matrix.insert(Matrix.begin(),H, std::vector<unsigned int>(W,0));
 }
