@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "lib/GluiText.h"
 #include "lib/ConfigINI.h"
+#include "sound.h"
 
 int WndW = 450+150,WndH = 810;
 bool pause = false;
@@ -61,7 +62,7 @@ void readConfig()
     //add resource files path to the config
     config.addNewOption("Path","blocksColor",blocksColorPath);
     config.addNewOption("Path","blocks",blocksPath);
-    //add game blocks count to tht config
+    //add game blocks count to the config
     config.addNewOption("Value","gameBlockW",game.getW());
     config.addNewOption("Value","gameBlockH",game.getH());
 
@@ -102,6 +103,7 @@ void init()
     window.NextBlockColorID = game.NextBlockColorID;
     window.NewGame();
     window.Next();
+    sound();
     Timer();
 }
 void Keys(BYTE key,int ax,int ay)
