@@ -5,6 +5,7 @@
 
 int WndW = 450+150,WndH = 810;
 bool pause = false;
+Sound muz;
 
 using namespace std;
 
@@ -103,7 +104,9 @@ void init()
     window.NextBlockColorID = game.NextBlockColorID;
     window.NewGame();
     window.Next();
-    sound();
+//    sound();
+    muz.Open("sound.wav");
+    muz.Play();
     Timer();
 }
 void Keys(BYTE key,int ax,int ay)
@@ -115,6 +118,9 @@ void Keys(BYTE key,int ax,int ay)
         case 'p':
         case 'P':
             pause = !pause;
+            if(pause)
+                muz.Pause();
+            else muz.Play();
             break;
         case 13:
             if(game.GameOver)
