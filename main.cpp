@@ -157,6 +157,7 @@ void Timer(int t)
         }
     }
     glutTimerFunc(game.Speed,Timer,0);
+    muz.Update();
 }
 
 int main(int argc,char** argv)

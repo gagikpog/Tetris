@@ -20,7 +20,8 @@ public:
 	void Play();
 	void Pause();
 	void Stop();
-	bool Repeat = true;
+	void Update();
+	bool Loop = true;
 };
 
 #endif

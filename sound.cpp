@@ -53,6 +53,12 @@ void Sound::Stop()
     alSourceStop(source);
 }
 
-//do {
-//        alGetSourcei(source, AL_SOURCE_STATE, &state);
-//} while (state == AL_PLAYING);
+void Sound::Update()
+{
+    if(!Loop)
+        return;
+    ALint state;
+    alGetSourcei(source, AL_SOURCE_STATE, &state);
+    if (state != AL_PLAYING)
+        Play();
+}
