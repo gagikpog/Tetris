@@ -40,7 +40,7 @@ bin/sound.o:
 	$(CC) $(FLAG) sound.cpp -o bin/sound.o
 
 clear:
-	rm bin/*.o
+	find . -name '*.o' -delete
 	clear
 
 bin: | /bin

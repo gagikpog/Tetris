@@ -40,11 +40,13 @@ void Sound::Open(std::string fname)
 
 void Sound::Play()
 {
+    pause = false;
     alSourcePlay(source);
 }
 
 void Sound::Pause()
 {
+    pause = true;
     alSourcePause(source);
 }
 
@@ -55,10 +57,16 @@ void Sound::Stop()
 
 void Sound::Update()
 {
-    if(!Loop)
+    if(!Loop||pause)
         return;
     ALint state;
     alGetSourcei(source, AL_SOURCE_STATE, &state);
     if (state != AL_PLAYING)
         Play();
+}
+
+void Sound::setVolume(int v)
+{
+    volume = v;
+    alSourcef(source, AL_GAIN, volume/100.f);
 }

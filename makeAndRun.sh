@@ -1,4 +1,4 @@
 rm app.pro
-clear
-make all clear
+./clean.sh
+make all
 ./app.pro

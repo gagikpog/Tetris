@@ -5,7 +5,7 @@
 
 int WndW = 450+150,WndH = 810;
 bool pause = false;
-Sound muz;
+Sound gameSound, pauseSound, rotateSound;
 
 using namespace std;
 
@@ -18,8 +18,12 @@ ConfigINI config("tetris.config");
 //game settings
 GLUI::Glui_Color BackgroundColor(22,215,255);
 GLUI::Glui_Color TextColor(GLUI::White);
+//path
 string blocksColorPath = "blocksColor.txt";
 string blocksPath = "blocksMap.map";
+string gameSoundPath = "Sound/sound.wav";
+string pauseSoundPath  = "Sound/pause.wav";
+string rotateSoundPath = "Sound/rotate.wav";
 //
 
 void Display()
@@ -37,11 +41,16 @@ void Display()
     text.glText(WndW - 140, WndH - 90,"Level : " + to_string(game.Level),TextColor);
     text.glText(WndW - 140, WndH - 120,"High : " + to_string(game.HighScore),TextColor);
     //message window
+    static bool g_over = false;
     if(pause || game.GameOver)
     {
         GLUI::Gl_Print_Roundrect((WndW - 150 - 200)/2, (WndH-140)/2,200,140,50,GLUI::Glui_Color(150,200,0,100),GLUI::Glui_Color(20,20,20,150));
         if(game.GameOver)
         {
+            if(!g_over){
+                g_over = true;
+                gameSound.Pause();
+            }
             text.glText((WndW - 150 - 100)/2-3, (WndH-15)/2,"GAME OVER",TextColor);
             GLUI::Glui_Color col = TextColor.getNegative();
             col.setAlpha(80);
@@ -50,7 +59,7 @@ void Display()
         } else {
             text.glText((WndW - 150 - 60)/2, (WndH-15)/2,"PAUSE",TextColor);
         }
-    }
+    }else {g_over = false;}
     glutSwapBuffers();
 }
 
@@ -63,6 +72,9 @@ void readConfig()
     //add resource files path to the config
     config.addNewOption("Path","blocksColor",blocksColorPath);
     config.addNewOption("Path","blocks",blocksPath);
+    config.addNewOption("Path","gameSound",gameSoundPath);
+    config.addNewOption("Path","pauseSound",pauseSoundPath);
+    config.addNewOption("Path","rotateSound",rotateSoundPath);
     //add game blocks count to the config
     config.addNewOption("Value","gameBlockW",game.getW());
     config.addNewOption("Value","gameBlockH",game.getH());
@@ -75,6 +87,9 @@ void readConfig()
     //read paths from config
     blocksColorPath = config.getOptionToString("Path","blocksColor");
     blocksPath = config.getOptionToString("Path","blocks");
+    gameSoundPath = config.getOptionToString("Path","gameSound");
+    gameSoundPath = config.getOptionToString("Path","pauseSound");
+    rotateSoundPath = config.getOptionToString("Path","rotateSound");
     //read game blocks count from config
     int w = config.getOptionToInt("Value","gameBlockW");
     int h = config.getOptionToInt("Value","gameBlockH");
@@ -104,9 +119,14 @@ void init()
     window.NextBlockColorID = game.NextBlockColorID;
     window.NewGame();
     window.Next();
-//    sound();
-    muz.Open("sound.wav");
-    muz.Play();
+    //Sound init
+    gameSound.Open(gameSoundPath);
+    gameSound.Play();
+    gameSound.setVolume(40);
+    pauseSound.Open(pauseSoundPath);
+    pauseSound.Loop = false;
+    rotateSound.Open(rotateSoundPath);
+    rotateSound.Loop = false;
     Timer();
 }
 void Keys(BYTE key,int ax,int ay)
@@ -119,12 +139,19 @@ void Keys(BYTE key,int ax,int ay)
         case 'P':
             pause = !pause;
             if(pause)
-                muz.Pause();
-            else muz.Play();
+            {
+                gameSound.Pause();
+                pauseSound.Play();
+            }else{
+                gameSound.Play();
+                pauseSound.Play();
+            }
             break;
         case 13:
             if(game.GameOver)
             {
+                gameSound.Stop();
+                gameSound.Play();
                 game.NewGame();
                 pause = false;
             }
@@ -140,7 +167,11 @@ void Keys(BYTE key,int ax,int ay)
 void Keys(int key,int ax,int ay)
 {
     if(!pause)
+    {
+        if(key == GLUT_KEY_UP)
+            rotateSound.Play();
         game.SpecialFunc(key,ax,WndH - ay);
+    }
 }
 
 void Timer(int t)
@@ -157,7 +188,7 @@ void Timer(int t)
         }
     }
     glutTimerFunc(game.Speed,Timer,0);
-    muz.Update();
+    gameSound.Update();
 }
 
 int main(int argc,char** argv)

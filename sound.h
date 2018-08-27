@@ -13,6 +13,8 @@ private:
 	std::string filename;
 	ALCdevice* device;
 	ALuint buffer, source;
+	bool pause = false;
+	float volume = 100;
 public:
 	Sound();
 	~Sound();
@@ -21,6 +23,7 @@ public:
 	void Pause();
 	void Stop();
 	void Update();
+	void setVolume(int volume);
 	bool Loop = true;
 };
 
