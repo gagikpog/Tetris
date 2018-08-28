@@ -36,6 +36,7 @@ void Sound::Open(std::string fname)
     // Create sound source (use buffer to fill source)
     alGenSources(1, &source);
     alSourcei(source, AL_BUFFER, buffer);
+    setVolume(volume);
 }
 
 void Sound::Play()
@@ -70,3 +71,8 @@ void Sound::setVolume(int v)
     volume = v;
     alSourcef(source, AL_GAIN, volume/100.f);
 }
+
+ int Sound::getVolume()
+ {
+     return volume;
+ }

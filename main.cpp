@@ -65,6 +65,8 @@ void Display()
 
 void readConfig()
 {
+    //add window heght
+    config.addNewOption("Size","heigh",WndH);
     //add all colors to the config
     config.addNewOption("Color","background",BackgroundColor.getUInt());
     config.addNewOption("Color","text",TextColor.getUInt());
@@ -78,7 +80,12 @@ void readConfig()
     //add game blocks count to the config
     config.addNewOption("Value","gameBlockW",game.getW());
     config.addNewOption("Value","gameBlockH",game.getH());
+    //add sounds volune
+    config.addNewOption("Volume","muz",40);
+    config.addNewOption("Volume","sounds",100);
 
+    //read window heigh
+    WndH = config.getOptionToInt("Size","heigh");
     //read colors from config
     BackgroundColor.setUInt(config.getOptionToUInt("Color","background"));
     TextColor.setUInt(config.getOptionToUInt("Color","text"));
@@ -93,6 +100,13 @@ void readConfig()
     //read game blocks count from config
     int w = config.getOptionToInt("Value","gameBlockW");
     int h = config.getOptionToInt("Value","gameBlockH");
+    //read sounds volume
+    gameSound.setVolume(config.getOptionToInt("Volume","muz"));
+    int vol = config.getOptionToInt("Volume","sounds");
+    //set volumes
+    pauseSound.setVolume(vol);
+    rotateSound.setVolume(vol);
+
     // calculate window size
     if(h == 0)
         return;
@@ -122,7 +136,6 @@ void init()
     //Sound init
     gameSound.Open(gameSoundPath);
     gameSound.Play();
-    gameSound.setVolume(40);
     pauseSound.Open(pauseSoundPath);
     pauseSound.Loop = false;
     rotateSound.Open(rotateSoundPath);

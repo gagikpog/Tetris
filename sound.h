@@ -24,6 +24,7 @@ public:
 	void Stop();
 	void Update();
 	void setVolume(int volume);
+	int getVolume();
 	bool Loop = true;
 };
 
