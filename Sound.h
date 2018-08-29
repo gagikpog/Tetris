@@ -14,6 +14,7 @@ private:
 	ALCdevice* device;
 	ALuint buffer, source;
 	bool pause = false;
+	bool active = true;
 	float volume = 100;
 public:
 	Sound();
@@ -25,6 +26,9 @@ public:
 	void Update();
 	void setVolume(int volume);
 	int getVolume();
+	int getStatus();
+	void setActive(bool stat);
+	bool getActive();
 	bool Loop = true;
 };
 

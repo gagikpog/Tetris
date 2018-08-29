@@ -1,14 +1,19 @@
 #include "Game.h"
 #include "lib/GluiText.h"
 #include "lib/ConfigINI.h"
-#include "sound.h"
+#include "Sound.h"
+#include "Label.h"
 
 int WndW = 450+150,WndH = 810;
 bool pause = false;
-Sound gameSound, pauseSound, rotateSound;
+Sound gameSound, pauseSound, rotateSound, gameOverSound;
+Label muzOffButton;
+Label soundOffButton;
 
 using namespace std;
 
+void soundsOn(bool state);
+void TimerDisplay(int t = 0);
 void Timer(int t = 0);
 
 Game game(10,18);
@@ -24,6 +29,7 @@ string blocksPath = "blocksMap.map";
 string gameSoundPath = "Sound/sound.wav";
 string pauseSoundPath  = "Sound/pause.wav";
 string rotateSoundPath = "Sound/rotate.wav";
+string gameOverSoundPath = "Sound/game over.wav";
 //
 
 void Display()
@@ -50,6 +56,7 @@ void Display()
             if(!g_over){
                 g_over = true;
                 gameSound.Pause();
+                gameOverSound.Play();
             }
             text.glText((WndW - 150 - 100)/2-3, (WndH-15)/2,"GAME OVER",TextColor);
             GLUI::Glui_Color col = TextColor.getNegative();
@@ -60,6 +67,10 @@ void Display()
             text.glText((WndW - 150 - 60)/2, (WndH-15)/2,"PAUSE",TextColor);
         }
     }else {g_over = false;}
+
+    muzOffButton.Draw();
+    soundOffButton.Draw();
+
     glutSwapBuffers();
 }
 
@@ -77,9 +88,12 @@ void readConfig()
     config.addNewOption("Path","gameSound",gameSoundPath);
     config.addNewOption("Path","pauseSound",pauseSoundPath);
     config.addNewOption("Path","rotateSound",rotateSoundPath);
+    config.addNewOption("Path","gameOverSound",gameOverSoundPath);
     //add game blocks count to the config
     config.addNewOption("Value","gameBlockW",game.getW());
     config.addNewOption("Value","gameBlockH",game.getH());
+    config.addNewOption("Value","muzOn",1);
+    config.addNewOption("Value","soundOn",1);
     //add sounds volune
     config.addNewOption("Volume","muz",40);
     config.addNewOption("Volume","sounds",100);
@@ -95,11 +109,14 @@ void readConfig()
     blocksColorPath = config.getOptionToString("Path","blocksColor");
     blocksPath = config.getOptionToString("Path","blocks");
     gameSoundPath = config.getOptionToString("Path","gameSound");
-    gameSoundPath = config.getOptionToString("Path","pauseSound");
+    pauseSoundPath = config.getOptionToString("Path","pauseSound");
     rotateSoundPath = config.getOptionToString("Path","rotateSound");
+    gameOverSoundPath = config.getOptionToString("Path","gameOverSound");
     //read game blocks count from config
     int w = config.getOptionToInt("Value","gameBlockW");
     int h = config.getOptionToInt("Value","gameBlockH");
+    gameSound.setActive(config.getOptionToInt("Value","muzOn"));
+    soundsOn(config.getOptionToInt("Value","soundOn"));
     //read sounds volume
     gameSound.setVolume(config.getOptionToInt("Volume","muz"));
     int vol = config.getOptionToInt("Volume","sounds");
@@ -140,6 +157,22 @@ void init()
     pauseSound.Loop = false;
     rotateSound.Open(rotateSoundPath);
     rotateSound.Loop = false;
+    gameOverSound.Open(gameOverSoundPath);
+    gameOverSound.Loop = false;
+    //buttons init
+    muzOffButton.X = WndW - 150;
+    muzOffButton.Y = WndH - 340;
+    muzOffButton.W = 30;
+    muzOffButton.H = 30;
+    muzOffButton.Color = GLUI::Glui_Color(50,50,50,100);
+    
+    soundOffButton.X = WndW - 110;
+    soundOffButton.Y = WndH - 340;
+    soundOffButton.W = 30;
+    soundOffButton.H = 30;
+    soundOffButton.Color = GLUI::Glui_Color(50,50,50,100);
+
+    TimerDisplay();
     Timer();
 }
 void Keys(BYTE key,int ax,int ay)
@@ -187,6 +220,28 @@ void Keys(int key,int ax,int ay)
     }
 }
 
+void PassiveMotionFunc(int ax,int ay)
+{
+    muzOffButton.PassiveMotionFunc(ax,WndH - ay);
+    soundOffButton.PassiveMotionFunc(ax,WndH - ay);
+}
+void MouseFunc(int button,int state,int ax,int ay)
+{
+    if(muzOffButton.MouseFunc(button, state, ax, WndH - ay))
+    {
+        //muz off or on
+        gameSound.setActive(!gameSound.getActive());
+        config.updateOption("Value","muzOn",gameSound.getActive());
+    }
+    
+    if(soundOffButton.MouseFunc(button, state, ax, WndH - ay))
+    {
+        //sound off or on
+        soundsOn(!pauseSound.getActive());
+        config.updateOption("Value","soundOn",pauseSound.getActive());
+    }
+}
+
 void Timer(int t)
 {
     glutPostRedisplay();
@@ -204,6 +259,12 @@ void Timer(int t)
     gameSound.Update();
 }
 
+void TimerDisplay(int t)
+{
+    glutPostRedisplay();
+    glutTimerFunc(200,TimerDisplay,t);
+}
+
 int main(int argc,char** argv)
 {
     readConfig();
@@ -218,7 +279,18 @@ int main(int argc,char** argv)
     init();
     glutKeyboardFunc(Keys);
     glutSpecialFunc(Keys);
+    //mouse fonc
+    glutPassiveMotionFunc(PassiveMotionFunc);
+    glutMouseFunc(MouseFunc);
+
     glutDisplayFunc(Display);
     glutMainLoop();
     return 0;
+}
+
+void soundsOn(bool state)
+{
+    pauseSound.setActive(state);
+    rotateSound.setActive(state);
+    gameOverSound.setActive(state);
 }

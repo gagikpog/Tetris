@@ -1,4 +1,4 @@
-#include "sound.h"
+#include "Sound.h"
 #include <iostream>
 Sound::Sound()
 {
@@ -41,6 +41,8 @@ void Sound::Open(std::string fname)
 
 void Sound::Play()
 {
+    if(!active)
+        return;
     pause = false;
     alSourcePlay(source);
 }
@@ -58,11 +60,9 @@ void Sound::Stop()
 
 void Sound::Update()
 {
-    if(!Loop||pause)
+    if(!Loop || pause || !active)
         return;
-    ALint state;
-    alGetSourcei(source, AL_SOURCE_STATE, &state);
-    if (state != AL_PLAYING)
+    if (getStatus() != AL_PLAYING)
         Play();
 }
 
@@ -76,3 +76,26 @@ void Sound::setVolume(int v)
  {
      return volume;
  }
+
+int Sound::getStatus()
+{
+    ALint state;
+    alGetSourcei(source, AL_SOURCE_STATE, &state);
+    return state;
+}
+void Sound::setActive(bool stat)
+{
+    active = stat;
+    if(!active)
+    {
+        Pause();
+    }else {
+        if(Loop)
+            Play();
+    }
+}
+
+bool Sound::getActive()
+{
+    return active;
+}
