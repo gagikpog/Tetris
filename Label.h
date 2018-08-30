@@ -1,5 +1,6 @@
 #include "lib/GluiColor.h"
 #include "lib/Glui_UF.h"
+#include "Sound.h"
 
 #ifndef LABEL_H
 #define LABEL_H
@@ -16,6 +17,7 @@ public:
 	void Draw();
 	int MouseFunc(int button, int state, int ax, int ay);
 	int PassiveMotionFunc(int ax, int ay);
+	Sound *Checked = NULL;
 };
 
 #endif

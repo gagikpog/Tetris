@@ -165,12 +165,14 @@ void init()
     muzOffButton.W = 30;
     muzOffButton.H = 30;
     muzOffButton.Color = GLUI::Glui_Color(50,50,50,100);
+    muzOffButton.Checked = &gameSound;
     
     soundOffButton.X = WndW - 110;
     soundOffButton.Y = WndH - 340;
     soundOffButton.W = 30;
     soundOffButton.H = 30;
     soundOffButton.Color = GLUI::Glui_Color(50,50,50,100);
+    soundOffButton.Checked = &pauseSound;
 
     TimerDisplay();
     Timer();
