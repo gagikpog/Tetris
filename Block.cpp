@@ -4,13 +4,9 @@ Block::Block(std::vector<std::vector<unsigned int>>* matrix)
 {
     Matrix = matrix;
     mBlock.insert(mBlock.begin(),5,std::vector<bool>(5,0));
-    Color = new GLUI::Glui_Color(8,233,26);
 }
 
-Block::~Block()
-{
-    delete Color;
-}
+Block::~Block(){}
 
 bool Block::Next()
 {
@@ -140,7 +136,17 @@ void Block::Print(float x,float y,float w,float h)
             if(X + j < 0 || X + j >= (*Matrix)[0].size())
                 continue;
             if(mBlock[i+2][j+2])
-                GLUI::Gl_Print_Rectangle(x+(X + j)*w,y+(Matrix->size()- Y - i - 1)*h,w,h,*Color,Color->getNegative(),0,true,1);
+            {
+                if(!classic)
+                {
+                    GLUI::Gl_Print_Rectangle(x+(X + j)*w,y+(Matrix->size()- Y - i - 1)*h,w,h,Color,Color.getNegative(),0,true,1);
+                }else{
+                    GLUI::Glui_Color col(30,30,30);
+                    GLUI::Gl_Print_Rectangle_Contour(x+(X + j)*w,y+(Matrix->size()- Y - i - 1)*h,w,h, col,0,2);
+                    GLUI::Gl_Print_Roundrect(x+(X + j)*w + w*0.1f ,y+(Matrix->size()- Y - i - 1)*h + h*0.1f ,w - w*0.2f,h - h*0.2f, 5,col,col);
+                }
+            }
+
         }        
     }   
 }
@@ -156,7 +162,7 @@ void Block::Save()
             if(X + j < 0 || X + j >= (*Matrix)[0].size())
                 continue;
             if(mBlock[i+2][j+2])
-                (*Matrix)[Y + i][X +j] = Color->getUInt();
+                (*Matrix)[Y + i][X +j] = Color.getUInt();
         }        
     }   
 }
@@ -241,7 +247,5 @@ bool Block::PositionAdjustment(BYTE deep)
 
 void Block::setBlockColor(const GLUI::Glui_Color& color)
 {
-    if(Color)
-        delete Color;
-    Color  = new GLUI::Glui_Color(color);
+    Color  = color;
 }

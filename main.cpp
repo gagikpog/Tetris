@@ -4,6 +4,7 @@
 
 int WndW = 450+150,WndH = 810;
 bool pause = false;
+bool ClassicGameStat = false;
 
 using namespace std;
 
@@ -64,6 +65,7 @@ void readConfig()
     //add game blocks count to tht config
     config.addNewOption("Value","gameBlockW",game.getW());
     config.addNewOption("Value","gameBlockH",game.getH());
+    config.addNewOption("Value","classicGame",0);
 
     //read colors from config
     BackgroundColor.setUInt(config.getOptionToUInt("Color","background"));
@@ -76,6 +78,7 @@ void readConfig()
     //read game blocks count from config
     int w = config.getOptionToInt("Value","gameBlockW");
     int h = config.getOptionToInt("Value","gameBlockH");
+    ClassicGameStat = config.getOptionToInt("Value","classicGame");
     // calculate window size
     if(h == 0)
         return;
@@ -95,6 +98,7 @@ void init()
     game.LoadBlocksColorsFromFile(blocksColorPath);
     game.setSaveingFileName("Save");
     game.InitFrame(10,10,WndW-20-150,WndH-20);
+    game.ActiveClassicMode(ClassicGameStat);
     window.LoadBlocksFromFile(blocksPath);
     window.LoadBlocksColorsFromFile(blocksColorPath);
     window.InitFrame(WndW - 150, WndH - 300,140,140);
@@ -102,6 +106,7 @@ void init()
     window.NextBlockColorID = game.NextBlockColorID;
     window.NewGame();
     window.Next();
+    window.ActiveClassicMode(ClassicGameStat);
     Timer();
 }
 void Keys(BYTE key,int ax,int ay)

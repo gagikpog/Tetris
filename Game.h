@@ -11,12 +11,13 @@ private:
   std::vector<std::vector<unsigned int>> Matrix;
   float PosX = 0, PosY = 0;
   float SizeW = 100, SizeH = 100;
-  GLUI::Glui_Color *backgrColor;
+  GLUI::Glui_Color backgrColor = GLUI::Glui_Color(22,215,255);
   std::vector<std::string> blocksMap;
   std::vector<unsigned int> blocksColor;
   std::vector<BYTE> erase;
   Block *block = NULL;
   bool Pause = false;
+  bool classic = true;
   int animation = 0;
   void DeleteExtraLines();
   void NewBlock();
@@ -41,6 +42,7 @@ public:
   int getW(){return W;}
   int getH(){return H;}
   void setBlocksCount(int w,int h);
+  void ActiveClassicMode(bool stat);
   bool GameOver = false;
   int Speed = 500;
   int Level = 1;

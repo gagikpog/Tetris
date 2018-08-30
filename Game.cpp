@@ -6,13 +6,9 @@ Game::Game(int w,int h)
     H = h;
     Matrix.insert(Matrix.begin(),H, std::vector<unsigned int>(W,0));
     block = new Block(&Matrix);
-    backgrColor = new GLUI::Glui_Color(22,215,255);
     blocksColor.push_back(GLUI::Glui_Color::ColorToUInt(GLUI::Green));
 }
-Game::~Game()
-{
-    delete backgrColor;
-}
+Game::~Game(){}
 
 void Game::LoadBlocksFromFile(std::string filename)
 {
@@ -59,8 +55,13 @@ void Game::InitFrame(float x, float y, float w, float h)
 void Game::Print()
 {
     //  background
-    GLUI::Gl_Print_Rectangle(PosX,PosY,SizeW,SizeH,*backgrColor,GLUI::Yellow,0,true,1);
-
+    if(!classic)
+    {
+        GLUI::Gl_Print_Rectangle(PosX,PosY,SizeW,SizeH,backgrColor,GLUI::Yellow,0,true,1);
+    }else {
+        GLUI::Glui_Color col(107,107,107);
+        GLUI::Gl_Print_Rectangle(PosX,PosY,SizeW,SizeH,col,GLUI::Black,0,true,1);
+    }
     //  matrix
     float w = SizeW / W;
     float h = SizeH / H;
@@ -69,15 +70,24 @@ void Game::Print()
         for(int j = 0;j < W;j++)
         {
             if(Matrix[i][j] != 0){
-                GLUI::Glui_Color col(GLUI::Glui_Color::UIntToColor(Matrix[i][j]));
-                GLUI::Gl_Print_Rectangle(PosX+j*w,PosY+(H-i-1)*h,w,h,col,col.getNegative());
+                if(!classic)
+                {
+                    GLUI::Glui_Color col(GLUI::Glui_Color::UIntToColor(Matrix[i][j]));
+                    GLUI::Gl_Print_Rectangle(PosX+j*w,PosY+(H-i-1)*h,w,h,col,col.getNegative());
+                }else{
+                    GLUI::Glui_Color col(30,30,30);
+                    GLUI::Gl_Print_Rectangle_Contour(PosX+j*w,PosY+(H-i-1)*h,w,h, col,0,2);
+                    GLUI::Gl_Print_Roundrect(PosX+j*w + w*0.1f ,PosY+(H-i-1)*h + h*0.1f ,w - w*0.2f,h - h*0.2f, 5,col,col);
+                }
             }
         }
     }
     //animation
     if(Pause)
     {
-        GLUI::Glui_Color col = *backgrColor;
+        GLUI::Glui_Color col = backgrColor;
+        if(classic)
+            col = GLUI::Gray;
         col.setAlpha(180);
         for(int i = 0; i < erase.size(); i++)
         {
@@ -151,14 +161,12 @@ void Game::SpecialFunc(int key,int ax,int ay)
 
 void Game::setBckgColor(const GLUI::Glui_Color& color)
 {
-    if(backgrColor)
-        delete backgrColor;
-    backgrColor = new GLUI::Glui_Color(color);
+    backgrColor = color;
 }
 
 const GLUI::Glui_Color& Game::gatBckgColor() const
 {
-    return *backgrColor;
+    return backgrColor;
 }
 
 void Game::DeleteExtraLines()
@@ -261,10 +269,12 @@ void Game::NewGame()
 
 void Game::NewBlock()
 {
-    delete block;
+    if(block)
+        delete block;
     block = new Block(&Matrix);
     block->setBlock(blocksMap[NextBlockID]);
     block->setBlockColor(GLUI::Glui_Color::UIntToColor(blocksColor[NextBlockColorID]));
+    block->classic = classic;
     DeleteExtraLines();
     NextBlockID = rand() % blocksMap.size();
     NextBlockColorID = rand() % blocksColor.size();
@@ -398,4 +408,10 @@ void Game::setBlocksCount(int w,int h)
     H = h;
     Matrix.clear();
     Matrix.insert(Matrix.begin(),H, std::vector<unsigned int>(W,0));
+}
+
+void Game::ActiveClassicMode(bool stat)
+{
+    classic = stat;
+    NewBlock();
 }
