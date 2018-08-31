@@ -54,6 +54,9 @@ void Game::InitFrame(float x, float y, float w, float h)
 
 void Game::Print()
 {
+    float w = SizeW / W;
+    float h = SizeH / H;
+
     //  background
     if(!classic)
     {
@@ -61,10 +64,19 @@ void Game::Print()
     }else {
         GLUI::Glui_Color col(107,107,107);
         GLUI::Gl_Print_Rectangle(PosX,PosY,SizeW,SizeH,col,GLUI::Black,0,true,1);
+        
+        for(float i = 0; i < Matrix.size(); i++)
+        {
+            for(float j = 0; j < Matrix[i].size(); j++)
+            {
+                GLUI::Glui_Color col(30,30,30,15);
+                GLUI::Gl_Print_Rectangle_Contour(PosX+j*w,PosY+(H-i-1)*h,w,h, col,0,2);
+                GLUI::Gl_Print_Roundrect(PosX+j*w + w*0.1f ,PosY+(H-i-1)*h + h*0.1f ,w - w*0.2f,h - h*0.2f, 5,col,col);
+            }
+        }
+        
     }
     //  matrix
-    float w = SizeW / W;
-    float h = SizeH / H;
     for(int i = 0;i < H;i++)
     {
         for(int j = 0;j < W;j++)
