@@ -1,13 +1,20 @@
 #include "Game.h"
 #include "lib/GluiText.h"
 #include "lib/ConfigINI.h"
+#include "Sound.h"
+#include "Label.h"
 
 int WndW = 450+150,WndH = 810;
 bool pause = false;
 bool ClassicGameStat = false;
+Sound gameSound, pauseSound, rotateSound, gameOverSound;
+Label muzOffButton;
+Label soundOffButton;
 
 using namespace std;
 
+void soundsOn(bool state);
+void TimerDisplay(int t = 0);
 void Timer(int t = 0);
 
 Game game(10,18);
@@ -17,8 +24,13 @@ ConfigINI config("tetris.config");
 //game settings
 GLUI::Glui_Color BackgroundColor(22,215,255);
 GLUI::Glui_Color TextColor(GLUI::White);
+//path
 string blocksColorPath = "blocksColor.txt";
 string blocksPath = "blocksMap.map";
+string gameSoundPath = "Sound/sound.wav";
+string pauseSoundPath  = "Sound/pause.wav";
+string rotateSoundPath = "Sound/rotate.wav";
+string gameOverSoundPath = "Sound/game over.wav";
 //
 
 void Display()
@@ -36,11 +48,17 @@ void Display()
     text.glText(WndW - 140, WndH - 90,"Level : " + to_string(game.Level),TextColor);
     text.glText(WndW - 140, WndH - 120,"High : " + to_string(game.HighScore),TextColor);
     //message window
+    static bool g_over = false;
     if(pause || game.GameOver)
     {
         GLUI::Gl_Print_Roundrect((WndW - 150 - 200)/2, (WndH-140)/2,200,140,50,GLUI::Glui_Color(150,200,0,100),GLUI::Glui_Color(20,20,20,150));
         if(game.GameOver)
         {
+            if(!g_over){
+                g_over = true;
+                gameSound.Pause();
+                gameOverSound.Play();
+            }
             text.glText((WndW - 150 - 100)/2-3, (WndH-15)/2,"GAME OVER",TextColor);
             GLUI::Glui_Color col = TextColor.getNegative();
             col.setAlpha(80);
@@ -49,12 +67,18 @@ void Display()
         } else {
             text.glText((WndW - 150 - 60)/2, (WndH-15)/2,"PAUSE",TextColor);
         }
-    }
+    }else {g_over = false;}
+
+    muzOffButton.Draw();
+    soundOffButton.Draw();
+
     glutSwapBuffers();
 }
 
 void readConfig()
 {
+    //add window heght
+    config.addNewOption("Size","heigh",WndH);
     //add all colors to the config
     config.addNewOption("Color","background",BackgroundColor.getUInt());
     config.addNewOption("Color","text",TextColor.getUInt());
@@ -62,11 +86,22 @@ void readConfig()
     //add resource files path to the config
     config.addNewOption("Path","blocksColor",blocksColorPath);
     config.addNewOption("Path","blocks",blocksPath);
-    //add game blocks count to tht config
+    config.addNewOption("Path","gameSound",gameSoundPath);
+    config.addNewOption("Path","pauseSound",pauseSoundPath);
+    config.addNewOption("Path","rotateSound",rotateSoundPath);
+    config.addNewOption("Path","gameOverSound",gameOverSoundPath);
+    //add game blocks count to the config
     config.addNewOption("Value","gameBlockW",game.getW());
     config.addNewOption("Value","gameBlockH",game.getH());
     config.addNewOption("Value","classicGame",0);
+    config.addNewOption("Value","muzOn",1);
+    config.addNewOption("Value","soundOn",1);
+    //add sounds volune
+    config.addNewOption("Volume","muz",40);
+    config.addNewOption("Volume","sounds",100);
 
+    //read window heigh
+    WndH = config.getOptionToInt("Size","heigh");
     //read colors from config
     BackgroundColor.setUInt(config.getOptionToUInt("Color","background"));
     TextColor.setUInt(config.getOptionToUInt("Color","text"));
@@ -75,10 +110,23 @@ void readConfig()
     //read paths from config
     blocksColorPath = config.getOptionToString("Path","blocksColor");
     blocksPath = config.getOptionToString("Path","blocks");
+    gameSoundPath = config.getOptionToString("Path","gameSound");
+    pauseSoundPath = config.getOptionToString("Path","pauseSound");
+    rotateSoundPath = config.getOptionToString("Path","rotateSound");
+    gameOverSoundPath = config.getOptionToString("Path","gameOverSound");
     //read game blocks count from config
     int w = config.getOptionToInt("Value","gameBlockW");
     int h = config.getOptionToInt("Value","gameBlockH");
     ClassicGameStat = config.getOptionToInt("Value","classicGame");
+    gameSound.setActive(config.getOptionToInt("Value","muzOn"));
+    soundsOn(config.getOptionToInt("Value","soundOn"));
+    //read sounds volume
+    gameSound.setVolume(config.getOptionToInt("Volume","muz"));
+    int vol = config.getOptionToInt("Volume","sounds");
+    //set volumes
+    pauseSound.setVolume(vol);
+    rotateSound.setVolume(vol);
+
     // calculate window size
     if(h == 0)
         return;
@@ -107,6 +155,31 @@ void init()
     window.NewGame();
     window.Next();
     window.ActiveClassicMode(ClassicGameStat);
+    //Sound init
+    gameSound.Open(gameSoundPath);
+    gameSound.Play();
+    pauseSound.Open(pauseSoundPath);
+    pauseSound.Loop = false;
+    rotateSound.Open(rotateSoundPath);
+    rotateSound.Loop = false;
+    gameOverSound.Open(gameOverSoundPath);
+    gameOverSound.Loop = false;
+    //buttons init
+    muzOffButton.X = WndW - 150;
+    muzOffButton.Y = WndH - 340;
+    muzOffButton.W = 30;
+    muzOffButton.H = 30;
+    muzOffButton.Color = GLUI::Glui_Color(50,50,50,100);
+    muzOffButton.Checked = &gameSound;
+    
+    soundOffButton.X = WndW - 110;
+    soundOffButton.Y = WndH - 340;
+    soundOffButton.W = 30;
+    soundOffButton.H = 30;
+    soundOffButton.Color = GLUI::Glui_Color(50,50,50,100);
+    soundOffButton.Checked = &pauseSound;
+
+    TimerDisplay();
     Timer();
 }
 void Keys(BYTE key,int ax,int ay)
@@ -118,10 +191,20 @@ void Keys(BYTE key,int ax,int ay)
         case 'p':
         case 'P':
             pause = !pause;
+            if(pause)
+            {
+                gameSound.Pause();
+                pauseSound.Play();
+            }else{
+                gameSound.Play();
+                pauseSound.Play();
+            }
             break;
         case 13:
             if(game.GameOver)
             {
+                gameSound.Stop();
+                gameSound.Play();
                 game.NewGame();
                 pause = false;
             }
@@ -137,7 +220,33 @@ void Keys(BYTE key,int ax,int ay)
 void Keys(int key,int ax,int ay)
 {
     if(!pause)
+    {
+        if(key == GLUT_KEY_UP)
+            rotateSound.Play();
         game.SpecialFunc(key,ax,WndH - ay);
+    }
+}
+
+void PassiveMotionFunc(int ax,int ay)
+{
+    muzOffButton.PassiveMotionFunc(ax,WndH - ay);
+    soundOffButton.PassiveMotionFunc(ax,WndH - ay);
+}
+void MouseFunc(int button,int state,int ax,int ay)
+{
+    if(muzOffButton.MouseFunc(button, state, ax, WndH - ay))
+    {
+        //muz off or on
+        gameSound.setActive(!gameSound.getActive());
+        config.updateOption("Value","muzOn",gameSound.getActive());
+    }
+    
+    if(soundOffButton.MouseFunc(button, state, ax, WndH - ay))
+    {
+        //sound off or on
+        soundsOn(!pauseSound.getActive());
+        config.updateOption("Value","soundOn",pauseSound.getActive());
+    }
 }
 
 void Timer(int t)
@@ -154,6 +263,13 @@ void Timer(int t)
         }
     }
     glutTimerFunc(game.Speed,Timer,0);
+    gameSound.Update();
+}
+
+void TimerDisplay(int t)
+{
+    glutPostRedisplay();
+    glutTimerFunc(200,TimerDisplay,t);
 }
 
 int main(int argc,char** argv)
@@ -170,7 +286,18 @@ int main(int argc,char** argv)
     init();
     glutKeyboardFunc(Keys);
     glutSpecialFunc(Keys);
+    //mouse fonc
+    glutPassiveMotionFunc(PassiveMotionFunc);
+    glutMouseFunc(MouseFunc);
+
     glutDisplayFunc(Display);
     glutMainLoop();
     return 0;
+}
+
+void soundsOn(bool state)
+{
+    pauseSound.setActive(state);
+    rotateSound.setActive(state);
+    gameOverSound.setActive(state);
 }

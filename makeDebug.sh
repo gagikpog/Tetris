@@ -1,3 +1,3 @@
 rm app.pro
-clear
-make allDebog clear
+./clean.sh
+make allDebog

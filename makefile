@@ -1,12 +1,14 @@
 CC=g++
 FLAG=-c
 DEBUG=-g
+F_OPENGL=-lGL -lGLU -lglut
+F_OPENAL=-lopenal -lalut
 
-all: bin bin/GluiColor.o bin/GluiText.o bin/ConfigINI.o bin/Glui_UF.o  bin/main.o bin/Game.o bin/Block.o bin/CRC_code.o
-	$(CC) -o app.pro bin/GluiColor.o bin/GluiText.o bin/ConfigINI.o bin/Glui_UF.o bin/main.o bin/Game.o bin/Block.o bin/CRC_code.o -lGL -lGLU -lglut
+all: bin bin/GluiColor.o bin/GluiText.o bin/ConfigINI.o bin/Glui_UF.o  bin/main.o bin/Game.o bin/Block.o bin/CRC_code.o bin/Sound.o bin/Label.o
+	$(CC) -o app.pro bin/GluiColor.o bin/GluiText.o bin/ConfigINI.o bin/Glui_UF.o bin/main.o bin/Game.o bin/Block.o bin/CRC_code.o bin/Sound.o bin/Label.o $(F_OPENGL) $(F_OPENAL)
 
-allDebog: addDebugFlag bin bin/GluiColor.o bin/GluiText.o bin/ConfigINI.o bin/Glui_UF.o  bin/main.o bin/Game.o bin/Block.o bin/CRC_code.o
-	$(CC) -o app.pro bin/GluiColor.o bin/GluiText.o bin/ConfigINI.o bin/Glui_UF.o bin/main.o bin/Game.o bin/Block.o bin/CRC_code.o -lGL -lGLU -lglut -g
+allDebog: addDebugFlag bin bin/GluiColor.o bin/GluiText.o bin/ConfigINI.o bin/Glui_UF.o  bin/main.o bin/Game.o bin/Block.o bin/CRC_code.o bin/Sound.o bin/Label.o
+	$(CC) -o app.pro bin/GluiColor.o bin/GluiText.o bin/ConfigINI.o bin/Glui_UF.o bin/main.o bin/Game.o bin/Block.o bin/CRC_code.o bin/Sound.o bin/Label.o $(F_OPENGL) $(F_OPENAL) -g
 
 #project 
 bin/main.o:
@@ -34,8 +36,14 @@ bin/Glui_UF.o:
 bin/CRC_code.o:
 	$(CC) $(FLAG) lib/CRC_code.cpp -o bin/CRC_code.o
 
+bin/Sound.o:
+	$(CC) $(FLAG) Sound.cpp -o bin/Sound.o
+
+bin/Label.o:
+	$(CC) $(FLAG) Label.cpp -o bin/Label.o
+
 clear:
-	rm bin/*.o
+	find . -name '*.o' -delete
 	clear
 
 bin: | /bin
