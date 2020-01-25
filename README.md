@@ -1,10 +1,9 @@
 # Tetris
 ### Using libs
-- ##### MinGW
 - ##### OpenGl
 - ##### OpenAL
 
-#### install libs
+#### install libs in linux
 ```sh
 $ chmod +x installLibs.sh
 $ ./installLibs.sh
